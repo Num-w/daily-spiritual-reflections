@@ -1,45 +1,74 @@
 
 import React, { useState } from 'react';
 import { Search, Filter, Menu, Star, Share2, Edit3, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface MeditationsViewProps {
   darkMode: boolean;
+  meditations: any[];
+  onEditMeditation: (meditation: any) => void;
+  onDeleteMeditation: (id: number) => void;
 }
 
-export const MeditationsView = ({ darkMode }: MeditationsViewProps) => {
+export const MeditationsView = ({ darkMode, meditations, onEditMeditation, onDeleteMeditation }: MeditationsViewProps) => {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentView, setCurrentView] = useState('grid');
   const [sortBy, setSortBy] = useState('date');
   const [filterColor, setFilterColor] = useState('all');
 
   const colors = ['blue', 'green', 'yellow', 'red', 'purple', 'orange', 'pink', 'gray'];
-  
-  const meditations = [
-    {
-      id: 1,
-      verse: "Jean 3:16",
-      title: "L'amour de Dieu",
-      content: "Car Dieu a tant aimé le monde qu'il a donné son Fils unique...",
-      summary: "Méditation sur l'amour inconditionnel de Dieu manifesté par le sacrifice de Jésus. Cette vérité fondamentale nous rappelle que notre salut ne dépend pas de nos œuvres mais de la grâce divine.",
-      color: "blue",
-      pinned: true,
-      date: "2025-06-25",
-      time: "matin",
-      tags: ["amour", "salut", "grâce"]
-    },
-    {
-      id: 2,
-      verse: "Psaume 23:1",
-      title: "Le Bon Berger",
-      content: "L'Éternel est mon berger: je ne manquerai de rien.",
-      summary: "Méditation sur la provision divine et la sécurité en Dieu. Le Seigneur pourvoit à tous nos besoins selon sa richesse.",
-      color: "green",
-      pinned: false,
-      date: "2025-06-24",
-      time: "soir",
-      tags: ["provision", "confiance", "protection"]
+
+  const filteredMeditations = meditations.filter(meditation => {
+    const matchesSearch = searchTerm === '' || 
+      meditation.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      meditation.verse.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      meditation.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      meditation.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesColor = filterColor === 'all' || meditation.color === filterColor;
+    
+    return matchesSearch && matchesColor;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'title':
+        return a.title.localeCompare(b.title);
+      case 'verse':
+        return a.verse.localeCompare(b.verse);
+      case 'color':
+        return a.color.localeCompare(b.color);
+      case 'date':
+      default:
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
     }
-  ];
+  });
+
+  const handleShare = (meditation: any) => {
+    const shareText = `${meditation.title}\n\n${meditation.verse}\n\n${meditation.summary}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: meditation.title,
+        text: shareText,
+      });
+    } else {
+      navigator.clipboard.writeText(shareText);
+      toast({
+        title: "Copié !",
+        description: "Le contenu de la méditation a été copié dans le presse-papier"
+      });
+    }
+  };
+
+  const handleDelete = (meditation: any) => {
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer la méditation "${meditation.title}" ?`)) {
+      onDeleteMeditation(meditation.id);
+      toast({
+        title: "Supprimé",
+        description: "La méditation a été supprimée avec succès"
+      });
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -119,9 +148,14 @@ export const MeditationsView = ({ darkMode }: MeditationsViewProps) => {
         </div>
       </div>
 
+      {/* Results count */}
+      <div className="text-sm text-gray-500 animate-fade-in">
+        {filteredMeditations.length} méditation{filteredMeditations.length !== 1 ? 's' : ''} trouvée{filteredMeditations.length !== 1 ? 's' : ''}
+      </div>
+
       {/* Meditations list */}
       <div className={currentView === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : 'space-y-3'}>
-        {meditations.map((meditation, index) => (
+        {filteredMeditations.map((meditation, index) => (
           <div
             key={meditation.id}
             className={`p-4 rounded-xl border-l-4 border-l-blue-500 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] transform animate-fade-in ${
@@ -147,13 +181,22 @@ export const MeditationsView = ({ darkMode }: MeditationsViewProps) => {
               </div>
               
               <div className="flex space-x-1 ml-4">
-                <button className="p-1 hover:bg-gray-100 rounded transition-all duration-200 hover:scale-110">
+                <button 
+                  onClick={() => handleShare(meditation)}
+                  className="p-1 hover:bg-gray-100 rounded transition-all duration-200 hover:scale-110"
+                >
                   <Share2 className="w-4 h-4 text-gray-500" />
                 </button>
-                <button className="p-1 hover:bg-gray-100 rounded transition-all duration-200 hover:scale-110">
+                <button 
+                  onClick={() => onEditMeditation(meditation)}
+                  className="p-1 hover:bg-gray-100 rounded transition-all duration-200 hover:scale-110"
+                >
                   <Edit3 className="w-4 h-4 text-gray-500" />
                 </button>
-                <button className="p-1 hover:bg-gray-100 rounded transition-all duration-200 hover:scale-110">
+                <button 
+                  onClick={() => handleDelete(meditation)}
+                  className="p-1 hover:bg-gray-100 rounded transition-all duration-200 hover:scale-110"
+                >
                   <Trash2 className="w-4 h-4 text-gray-500" />
                 </button>
               </div>
@@ -162,7 +205,7 @@ export const MeditationsView = ({ darkMode }: MeditationsViewProps) => {
             <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center justify-between`}>
               <span>{meditation.date}</span>
               <div className="flex space-x-1">
-                {meditation.tags.map(tag => (
+                {meditation.tags.map((tag: string) => (
                   <span key={tag} className={`px-2 py-1 rounded-full bg-gray-100 transition-colors duration-200 ${
                     darkMode ? 'bg-gray-700 text-gray-300' : 'text-gray-600'
                   }`}>
@@ -174,6 +217,12 @@ export const MeditationsView = ({ darkMode }: MeditationsViewProps) => {
           </div>
         ))}
       </div>
+
+      {filteredMeditations.length === 0 && (
+        <div className="text-center py-12 animate-fade-in">
+          <p className="text-gray-500">Aucune méditation trouvée.</p>
+        </div>
+      )}
     </div>
   );
 };

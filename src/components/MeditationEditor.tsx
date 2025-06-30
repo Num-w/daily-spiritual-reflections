@@ -2,26 +2,55 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface MeditationEditorProps {
   onClose: () => void;
   darkMode: boolean;
+  meditation?: any;
+  onSave: (meditationData: any) => void;
 }
 
-export const MeditationEditor = ({ onClose, darkMode }: MeditationEditorProps) => {
+export const MeditationEditor = ({ onClose, darkMode, meditation, onSave }: MeditationEditorProps) => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
-    verse: '',
-    title: '',
-    content: '',
-    summary: '',
-    comments: '',
-    color: 'blue',
-    pinned: false,
-    time: 'matin',
-    tags: ''
+    verse: meditation?.verse || '',
+    title: meditation?.title || '',
+    content: meditation?.content || '',
+    summary: meditation?.summary || '',
+    comments: meditation?.comments || '',
+    color: meditation?.color || 'blue',
+    pinned: meditation?.pinned || false,
+    time: meditation?.time || 'matin',
+    tags: meditation?.tags?.join(', ') || ''
   });
 
   const colors = ['blue', 'green', 'yellow', 'red', 'purple', 'orange', 'pink', 'gray'];
+
+  const handleSave = () => {
+    if (!formData.verse || !formData.title || !formData.summary) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir les champs obligatoires (verset, titre, résumé)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const meditationData = {
+      id: meditation?.id || Date.now(),
+      ...formData,
+      tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+      date: meditation?.date || new Date().toISOString().split('T')[0]
+    };
+
+    onSave(meditationData);
+    toast({
+      title: "Succès",
+      description: meditation ? "Méditation modifiée avec succès" : "Méditation créée avec succès"
+    });
+    onClose();
+  };
 
   return (
     <div className={`fixed inset-0 z-50 animate-fade-in ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
@@ -36,8 +65,13 @@ export const MeditationEditor = ({ onClose, darkMode }: MeditationEditorProps) =
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h2 className="text-lg font-semibold">Nouvelle méditation</h2>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105">
+          <h2 className="text-lg font-semibold">
+            {meditation ? 'Modifier la méditation' : 'Nouvelle méditation'}
+          </h2>
+          <Button 
+            onClick={handleSave}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105"
+          >
             <Save className="w-4 h-4 inline mr-2" />
             Sauvegarder
           </Button>
@@ -47,7 +81,7 @@ export const MeditationEditor = ({ onClose, darkMode }: MeditationEditorProps) =
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <div className="grid grid-cols-2 gap-4 animate-fade-in">
             <div>
-              <label className="block text-sm font-medium mb-2">Verset</label>
+              <label className="block text-sm font-medium mb-2">Verset *</label>
               <input
                 type="text"
                 value={formData.verse}
@@ -75,7 +109,7 @@ export const MeditationEditor = ({ onClose, darkMode }: MeditationEditorProps) =
           </div>
 
           <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
-            <label className="block text-sm font-medium mb-2">Titre</label>
+            <label className="block text-sm font-medium mb-2">Titre *</label>
             <input
               type="text"
               value={formData.title}
@@ -101,7 +135,7 @@ export const MeditationEditor = ({ onClose, darkMode }: MeditationEditorProps) =
           </div>
 
           <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
-            <label className="block text-sm font-medium mb-2">Résumé de méditation</label>
+            <label className="block text-sm font-medium mb-2">Résumé de méditation *</label>
             <textarea
               value={formData.summary}
               onChange={(e) => setFormData({...formData, summary: e.target.value})}
@@ -126,7 +160,20 @@ export const MeditationEditor = ({ onClose, darkMode }: MeditationEditorProps) =
             />
           </div>
 
-          <div className="flex items-center justify-between animate-fade-in" style={{ animationDelay: '500ms' }}>
+          <div className="animate-fade-in" style={{ animationDelay: '500ms' }}>
+            <label className="block text-sm font-medium mb-2">Tags (séparés par des virgules)</label>
+            <input
+              type="text"
+              value={formData.tags}
+              onChange={(e) => setFormData({...formData, tags: e.target.value})}
+              className={`w-full px-3 py-2 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
+                darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'
+              }`}
+              placeholder="amour, grâce, salut"
+            />
+          </div>
+
+          <div className="flex items-center justify-between animate-fade-in" style={{ animationDelay: '600ms' }}>
             <div>
               <label className="block text-sm font-medium mb-2">Couleur</label>
               <div className="flex space-x-2">
