@@ -8,6 +8,11 @@ interface StatsViewProps {
   sermons: any[];
 }
 
+interface BookCount {
+  book: string;
+  count: number;
+}
+
 export const StatsView = ({ darkMode, meditations, sermons }: StatsViewProps) => {
   // Calculate statistics
   const totalMeditations = meditations.length;
@@ -23,15 +28,15 @@ export const StatsView = ({ darkMode, meditations, sermons }: StatsViewProps) =>
   // Calculate consecutive days (simplified)
   const consecutiveDays = meditations.length > 0 ? Math.min(meditations.length * 2, 30) : 0;
 
-  // Calculate most meditated books
-  const bookCounts = meditations.reduce((acc, meditation) => {
+  // Calculate most meditated books with proper typing
+  const bookCounts: Record<string, number> = meditations.reduce((acc, meditation) => {
     const book = meditation.verse.split(' ')[0];
     acc[book] = (acc[book] || 0) + 1;
     return acc;
-  }, {});
+  }, {} as Record<string, number>);
 
-  const topBooks = Object.entries(bookCounts)
-    .map(([book, count]) => ({ book, count }))
+  const topBooks: BookCount[] = Object.entries(bookCounts)
+    .map(([book, count]) => ({ book, count: count as number }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
