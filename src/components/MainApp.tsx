@@ -167,7 +167,15 @@ export const MainApp = ({ onLock, darkMode, setDarkMode }: MainAppProps) => {
       case 'stats':
         return <StatsView darkMode={darkMode} meditations={meditations} sermons={sermons} />;
       case 'settings':
-        return <SettingsView darkMode={darkMode} setDarkMode={setDarkMode} />;
+        return (
+          <SettingsView 
+            darkMode={darkMode} 
+            setDarkMode={setDarkMode}
+            meditations={meditations}
+            sermons={sermons}
+            onAddMeditation={handleSaveMeditation}
+          />
+        );
       default:
         return (
           <MeditationsView 

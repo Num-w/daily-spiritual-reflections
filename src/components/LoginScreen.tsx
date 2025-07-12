@@ -14,7 +14,8 @@ export const LoginScreen = ({ onUnlock, darkMode, setDarkMode }: LoginScreenProp
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'meditation') {
+    const storedPassword = localStorage.getItem('app_password') || 'meditation';
+    if (password === storedPassword) {
       onUnlock();
     } else {
       setError('Mot de passe incorrect');
