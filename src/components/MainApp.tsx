@@ -22,52 +22,77 @@ export const MainApp = ({ onLock, darkMode, setDarkMode }: MainAppProps) => {
   const [meditations, setMeditations] = useState([]);
   const [sermons, setSermons] = useState([]);
 
-  // Initialize sample data
+  // Load data from localStorage on component mount
   useEffect(() => {
-    const sampleMeditations = [
-      {
-        id: 1,
-        verse: "Jean 3:16",
-        title: "L'amour de Dieu",
-        content: "Car Dieu a tant aimé le monde qu'il a donné son Fils unique...",
-        summary: "Méditation sur l'amour inconditionnel de Dieu manifesté par le sacrifice de Jésus. Cette vérité fondamentale nous rappelle que notre salut ne dépend pas de nos œuvres mais de la grâce divine.",
-        comments: "Réflexion personnelle sur la manifestation de cet amour dans notre quotidien.",
-        color: "blue",
-        pinned: true,
-        date: "2025-06-25",
-        time: "matin",
-        tags: ["amour", "salut", "grâce"]
-      },
-      {
-        id: 2,
-        verse: "Psaume 23:1",
-        title: "Le Bon Berger",
-        content: "L'Éternel est mon berger: je ne manquerai de rien.",
-        summary: "Méditation sur la provision divine et la sécurité en Dieu. Le Seigneur pourvoit à tous nos besoins selon sa richesse.",
-        comments: "Gratitude pour la fidélité de Dieu dans ma vie.",
-        color: "green",
-        pinned: false,
-        date: "2025-06-24",
-        time: "soir",
-        tags: ["provision", "confiance", "protection"]
-      }
-    ];
+    const savedMeditations = localStorage.getItem('meditations');
+    const savedSermons = localStorage.getItem('sermons');
 
-    const sampleSermons = [
-      {
-        id: 1,
-        title: "L'amour transformateur de Dieu",
-        theme: "Amour divin",
-        date: "2025-07-01",
-        references: [1],
-        outline: "1. L'origine de l'amour\n2. La manifestation de l'amour\n3. Notre réponse à l'amour",
-        status: "en_preparation"
-      }
-    ];
+    if (savedMeditations) {
+      setMeditations(JSON.parse(savedMeditations));
+    } else {
+      // Initialize with sample data if no saved data
+      const sampleMeditations = [
+        {
+          id: 1,
+          verse: "Jean 3:16",
+          title: "L'amour de Dieu",
+          content: "Car Dieu a tant aimé le monde qu'il a donné son Fils unique...",
+          summary: "Méditation sur l'amour inconditionnel de Dieu manifesté par le sacrifice de Jésus. Cette vérité fondamentale nous rappelle que notre salut ne dépend pas de nos œuvres mais de la grâce divine.",
+          comments: "Réflexion personnelle sur la manifestation de cet amour dans notre quotidien.",
+          color: "blue",
+          pinned: true,
+          date: "2025-06-25",
+          time: "matin",
+          tags: ["amour", "salut", "grâce"]
+        },
+        {
+          id: 2,
+          verse: "Psaume 23:1",
+          title: "Le Bon Berger",
+          content: "L'Éternel est mon berger: je ne manquerai de rien.",
+          summary: "Méditation sur la provision divine et la sécurité en Dieu. Le Seigneur pourvoit à tous nos besoins selon sa richesse.",
+          comments: "Gratitude pour la fidélité de Dieu dans ma vie.",
+          color: "green",
+          pinned: false,
+          date: "2025-06-24",
+          time: "soir",
+          tags: ["provision", "confiance", "protection"]
+        }
+      ];
+      setMeditations(sampleMeditations);
+    }
 
-    setMeditations(sampleMeditations);
-    setSermons(sampleSermons);
+    if (savedSermons) {
+      setSermons(JSON.parse(savedSermons));
+    } else {
+      const sampleSermons = [
+        {
+          id: 1,
+          title: "L'amour transformateur de Dieu",
+          theme: "Amour divin",
+          date: "2025-07-01",
+          references: [1],
+          outline: "1. L'origine de l'amour\n2. La manifestation de l'amour\n3. Notre réponse à l'amour",
+          status: "en_preparation"
+        }
+      ];
+      setSermons(sampleSermons);
+    }
   }, []);
+
+  // Save meditations to localStorage whenever they change
+  useEffect(() => {
+    if (meditations.length > 0) {
+      localStorage.setItem('meditations', JSON.stringify(meditations));
+    }
+  }, [meditations]);
+
+  // Save sermons to localStorage whenever they change
+  useEffect(() => {
+    if (sermons.length > 0) {
+      localStorage.setItem('sermons', JSON.stringify(sermons));
+    }
+  }, [sermons]);
 
   const handleNewMeditation = () => {
     setEditingMeditation(null);
