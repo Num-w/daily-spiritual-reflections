@@ -1,11 +1,14 @@
 
 import React, { useState } from 'react';
-import { Palette, Bell, Upload, Lock, Sun, Moon, Settings, Sparkles } from 'lucide-react';
+import { Palette, Bell, Upload, Lock, Sun, Moon, Settings, Sparkles, Search, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GoogleDriveSync } from './GoogleDriveSync';
 import { DataExporter } from './DataExporter';
 import { PasswordManager } from './PasswordManager';
 import { InnovativeFeatures } from './InnovativeFeatures';
+import { NotificationManager } from './NotificationManager';
+import { SearchSystem } from './SearchSystem';
+import { ThemeCustomizer } from './ThemeCustomizer';
 
 interface SettingsViewProps {
   darkMode: boolean;
@@ -13,9 +16,11 @@ interface SettingsViewProps {
   meditations?: any[];
   sermons?: any[];
   onAddMeditation?: (meditation: any) => void;
+  onEditMeditation?: (meditation: any) => void;
+  onEditSermon?: (sermon: any) => void;
 }
 
-export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons = [], onAddMeditation }: SettingsViewProps) => {
+export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons = [], onAddMeditation, onEditMeditation, onEditSermon }: SettingsViewProps) => {
   const [showPasswordManager, setShowPasswordManager] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
 
@@ -30,9 +35,12 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
         <h2 className="text-xl font-semibold mb-4 animate-fade-in">Paramètres</h2>
         
         {/* Onglets */}
-        <div className="flex space-x-1 mb-6">
+        <div className="flex space-x-1 mb-6 overflow-x-auto">
           {[
             { id: 'general', label: 'Général', icon: Settings },
+            { id: 'appearance', label: 'Apparence', icon: Palette },
+            { id: 'notifications', label: 'Notifications', icon: Bell },
+            { id: 'search', label: 'Recherche', icon: Search },
             { id: 'features', label: 'Fonctionnalités', icon: Sparkles }
           ].map((tab) => (
             <button
@@ -179,6 +187,29 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
             </div>
           </div>
         </div>
+        )}
+
+        {activeTab === 'appearance' && (
+          <ThemeCustomizer 
+            darkMode={darkMode} 
+            setDarkMode={setDarkMode} 
+          />
+        )}
+
+        {activeTab === 'notifications' && (
+          <NotificationManager 
+            darkMode={darkMode} 
+          />
+        )}
+
+        {activeTab === 'search' && (
+          <SearchSystem 
+            darkMode={darkMode} 
+            meditations={meditations} 
+            sermons={sermons} 
+            onSelectMeditation={onEditMeditation || (() => {})}
+            onSelectSermon={onEditSermon || (() => {})}
+          />
         )}
 
         {activeTab === 'features' && onAddMeditation && (

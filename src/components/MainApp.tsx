@@ -174,6 +174,8 @@ export const MainApp = ({ onLock, darkMode, setDarkMode }: MainAppProps) => {
             meditations={meditations}
             sermons={sermons}
             onAddMeditation={handleSaveMeditation}
+            onEditMeditation={handleEditMeditation}
+            onEditSermon={(sermon) => {}} // TODO: Implement sermon editing
           />
         );
       default:
