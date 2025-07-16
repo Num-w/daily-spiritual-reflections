@@ -4,6 +4,7 @@ import { Palette, Bell, Upload, Lock, Sun, Moon, Settings, Sparkles, Search, Sha
 import { Button } from '@/components/ui/button';
 import { GoogleDriveSync } from './GoogleDriveSync';
 import { DataExporter } from './DataExporter';
+import { DataImporter } from './DataImporter';
 import { PasswordManager } from './PasswordManager';
 import { InnovativeFeatures } from './InnovativeFeatures';
 import { NotificationManager } from './NotificationManager';
@@ -18,9 +19,11 @@ interface SettingsViewProps {
   onAddMeditation?: (meditation: any) => void;
   onEditMeditation?: (meditation: any) => void;
   onEditSermon?: (sermon: any) => void;
+  onImportMeditations?: (meditations: any[]) => void;
+  onImportSermons?: (sermons: any[]) => void;
 }
 
-export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons = [], onAddMeditation, onEditMeditation, onEditSermon }: SettingsViewProps) => {
+export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons = [], onAddMeditation, onEditMeditation, onEditSermon, onImportMeditations, onImportSermons }: SettingsViewProps) => {
   const [showPasswordManager, setShowPasswordManager] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
 
@@ -40,6 +43,7 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
             { id: 'general', label: 'Général', icon: Settings },
             { id: 'appearance', label: 'Apparence', icon: Palette },
             { id: 'notifications', label: 'Notifications', icon: Bell },
+            { id: 'backup', label: 'Sauvegarde', icon: Upload },
             { id: 'search', label: 'Recherche', icon: Search },
             { id: 'features', label: 'Fonctionnalités', icon: Sparkles }
           ].map((tab) => (
@@ -124,27 +128,6 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
             </div>
           </div>
 
-          {/* Backup */}
-          <div className={`p-4 rounded-lg border transition-all duration-300 hover:shadow-lg animate-fade-in ${
-            darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-          }`} style={{ animationDelay: '200ms' }}>
-            <h3 className="font-medium mb-3 flex items-center">
-              <Upload className="w-5 h-5 mr-2" />
-              Sauvegarde et Export
-            </h3>
-            <div className="space-y-4">
-              <GoogleDriveSync 
-                darkMode={darkMode} 
-                meditations={meditations} 
-                sermons={sermons} 
-              />
-              <DataExporter 
-                darkMode={darkMode} 
-                meditations={meditations} 
-                sermons={sermons} 
-              />
-            </div>
-          </div>
 
           {/* Security */}
           <div className={`p-4 rounded-lg border transition-all duration-300 hover:shadow-lg animate-fade-in ${
@@ -210,6 +193,41 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
             onSelectMeditation={onEditMeditation || (() => {})}
             onSelectSermon={onEditSermon || (() => {})}
           />
+        )}
+
+        {activeTab === 'backup' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Exporter mes données</h3>
+                <DataExporter 
+                  darkMode={darkMode}
+                  meditations={meditations}
+                  sermons={sermons}
+                />
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Importer des données</h3>
+                {onImportMeditations && onImportSermons && (
+                  <DataImporter 
+                    darkMode={darkMode}
+                    onImportMeditations={onImportMeditations}
+                    onImportSermons={onImportSermons}
+                  />
+                )}
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Synchronisation Cloud</h3>
+              <GoogleDriveSync 
+                darkMode={darkMode}
+                meditations={meditations}
+                sermons={sermons}
+              />
+            </div>
+          </div>
         )}
 
         {activeTab === 'features' && onAddMeditation && (

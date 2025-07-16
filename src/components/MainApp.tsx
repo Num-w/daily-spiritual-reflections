@@ -7,6 +7,8 @@ import { SermonsView } from '@/components/SermonsView';
 import { StatsView } from '@/components/StatsView';
 import { SettingsView } from '@/components/SettingsView';
 import { MeditationEditor } from '@/components/MeditationEditor';
+import { SermonEditor } from '@/components/SermonEditor';
+import { FavoritesManager } from '@/components/FavoritesManager';
 import { Plus } from 'lucide-react';
 
 interface MainAppProps {
@@ -18,7 +20,9 @@ interface MainAppProps {
 export const MainApp = ({ onLock, darkMode, setDarkMode }: MainAppProps) => {
   const [activeTab, setActiveTab] = useState('meditations');
   const [showEditor, setShowEditor] = useState(false);
+  const [showSermonEditor, setShowSermonEditor] = useState(false);
   const [editingMeditation, setEditingMeditation] = useState(null);
+  const [editingSermon, setEditingSermon] = useState(null);
   const [meditations, setMeditations] = useState([]);
   const [sermons, setSermons] = useState([]);
 
@@ -132,6 +136,19 @@ export const MainApp = ({ onLock, darkMode, setDarkMode }: MainAppProps) => {
     setSermons(prev => prev.filter(s => s.id !== id));
   };
 
+  const handleEditSermon = (sermon: any) => {
+    setEditingSermon(sermon);
+    setShowSermonEditor(true);
+  };
+
+  const handleImportMeditations = (importedMeditations: any[]) => {
+    setMeditations(prev => [...prev, ...importedMeditations]);
+  };
+
+  const handleImportSermons = (importedSermons: any[]) => {
+    setSermons(prev => [...prev, ...importedSermons]);
+  };
+
   const renderContent = () => {
     if (showEditor) {
       return (
@@ -144,6 +161,18 @@ export const MainApp = ({ onLock, darkMode, setDarkMode }: MainAppProps) => {
       );
     }
 
+    if (showSermonEditor) {
+      return (
+        <SermonEditor
+          sermon={editingSermon}
+          meditations={meditations}
+          onSave={handleSaveSermon}
+          onClose={() => setShowSermonEditor(false)}
+          darkMode={darkMode}
+        />
+      );
+    }
+
     switch (activeTab) {
       case 'meditations':
         return (
@@ -152,6 +181,14 @@ export const MainApp = ({ onLock, darkMode, setDarkMode }: MainAppProps) => {
             meditations={meditations}
             onEditMeditation={handleEditMeditation}
             onDeleteMeditation={handleDeleteMeditation}
+          />
+        );
+      case 'favorites':
+        return (
+          <FavoritesManager
+            meditations={meditations}
+            onEditMeditation={handleEditMeditation}
+            darkMode={darkMode}
           />
         );
       case 'sermons':
@@ -175,7 +212,9 @@ export const MainApp = ({ onLock, darkMode, setDarkMode }: MainAppProps) => {
             sermons={sermons}
             onAddMeditation={handleSaveMeditation}
             onEditMeditation={handleEditMeditation}
-            onEditSermon={(sermon) => {}} // TODO: Implement sermon editing
+            onEditSermon={handleEditSermon}
+            onImportMeditations={handleImportMeditations}
+            onImportSermons={handleImportSermons}
           />
         );
       default:
@@ -203,7 +242,7 @@ export const MainApp = ({ onLock, darkMode, setDarkMode }: MainAppProps) => {
         </div>
       </div>
 
-      {!showEditor && (
+      {!showEditor && !showSermonEditor && (
         <button
           onClick={handleNewMeditation}
           className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 animate-bounce"

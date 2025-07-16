@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, Target, TrendingUp, Zap, Clock, Award, Lightbulb, Heart } from 'lucide-react';
+import { Brain, Target, TrendingUp, Zap, Clock, Award, Lightbulb, Heart, Quote, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
 interface InnovativeFeaturesProps {
   darkMode: boolean;
   meditations: any[];
   onAddMeditation: (meditation: any) => void;
+  onSuggestMeditation?: (suggestion: any) => void;
 }
 
-export const InnovativeFeatures = ({ darkMode, meditations, onAddMeditation }: InnovativeFeaturesProps) => {
+export const InnovativeFeatures = ({ darkMode, meditations, onAddMeditation, onSuggestMeditation }: InnovativeFeaturesProps) => {
   const [dailyChallenge, setDailyChallenge] = useState<string>('');
   const [meditationStreak, setMeditationStreak] = useState(0);
   const [insights, setInsights] = useState<string[]>([]);
   const [mood, setMood] = useState<string>('');
+  const [suggestion, setSuggestion] = useState<any>(null);
+  const [weeklyGoal] = useState(7);
   const { toast } = useToast();
 
   useEffect(() => {
     generateDailyChallenge();
     calculateStreak();
     generateInsights();
+    generateSuggestion();
   }, [meditations]);
 
   const challenges = [
@@ -172,8 +177,153 @@ export const InnovativeFeatures = ({ darkMode, meditations, onAddMeditation }: I
     });
   };
 
+  const generateSuggestion = () => {
+    if (meditations.length === 0) return;
+
+    const suggestions = [
+      {
+        verse: "Philippiens 4:13",
+        title: "La force en Christ",
+        theme: "perseverance",
+        reason: "Pour continuer votre série de méditations"
+      },
+      {
+        verse: "Psaume 119:105",
+        title: "La lumière de la Parole", 
+        theme: "guidance",
+        reason: "Pour approfondir votre compréhension"
+      },
+      {
+        verse: "Romains 8:28",
+        title: "Toutes choses concourent au bien",
+        theme: "providence",
+        reason: "Pour méditer sur la providence divine"
+      }
+    ];
+
+    const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+    setSuggestion(randomSuggestion);
+  };
+
+  const acceptSuggestion = () => {
+    if (suggestion && onSuggestMeditation) {
+      onSuggestMeditation({
+        verse: suggestion.verse,
+        title: suggestion.title,
+        content: `Suggestion de méditation sur ${suggestion.verse}`,
+        summary: "",
+        comments: suggestion.reason,
+        color: "purple",
+        date: new Date().toISOString().split('T')[0],
+        time: "matin",
+        tags: [suggestion.theme]
+      });
+      
+      toast({
+        title: "Suggestion acceptée",
+        description: "Une nouvelle méditation a été créée à partir de la suggestion",
+      });
+      
+      generateSuggestion();
+    }
+  };
+
+  const weekProgress = Math.min((meditations.filter(m => {
+    const date = new Date(m.date);
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    return date >= weekAgo;
+  }).length / weeklyGoal) * 100, 100);
+
   return (
     <div className="space-y-6">
+      {/* Objectif hebdomadaire et série */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className={darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Target className="w-5 h-5 text-blue-500" />
+              <span>Objectif hebdomadaire</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span>Progression</span>
+                <span className="font-bold">{Math.floor(weekProgress)}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${weekProgress}%` }}
+                />
+              </div>
+              <p className="text-sm text-gray-500">
+                {meditations.filter(m => {
+                  const date = new Date(m.date);
+                  const weekAgo = new Date();
+                  weekAgo.setDate(weekAgo.getDate() - 7);
+                  return date >= weekAgo;
+                }).length} / {weeklyGoal} méditations cette semaine
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className={darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Award className="w-5 h-5 text-green-500" />
+              <span>Série actuelle</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-500 mb-2">
+                {meditationStreak}
+              </div>
+              <p className="text-sm text-gray-500">
+                {meditationStreak === 0 ? 'Commencez une nouvelle série !' :
+                 meditationStreak === 1 ? 'jour consécutif' : 'jours consécutifs'}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Suggestion intelligente */}
+      {suggestion && (
+        <Card className={darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Lightbulb className="w-5 h-5 text-yellow-500" />
+              <span>Suggestion du jour</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-start space-x-3">
+                <Quote className="w-5 h-5 text-blue-500 mt-1" />
+                <div className="flex-1">
+                  <h4 className="font-medium">{suggestion.title}</h4>
+                  <p className="text-sm text-blue-600 mb-2">{suggestion.verse}</p>
+                  <p className="text-sm text-gray-500">{suggestion.reason}</p>
+                </div>
+              </div>
+              
+              <div className="flex space-x-2">
+                <Button onClick={acceptSuggestion} size="sm">
+                  Créer cette méditation
+                </Button>
+                <Button variant="outline" onClick={generateSuggestion} size="sm">
+                  Autre suggestion
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Défi du jour */}
       <div className={`p-4 rounded-lg border ${
         darkMode ? 'bg-gradient-to-r from-purple-900 to-blue-900 border-purple-700' : 'bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200'
@@ -191,28 +341,6 @@ export const InnovativeFeatures = ({ darkMode, meditations, onAddMeditation }: I
         </Button>
       </div>
 
-      {/* Série de méditations */}
-      <div className={`p-4 rounded-lg border ${
-        darkMode ? 'bg-gradient-to-r from-green-900 to-teal-900 border-green-700' : 'bg-gradient-to-r from-green-50 to-teal-50 border-green-200'
-      }`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <Award className="w-5 h-5 mr-2 text-green-500" />
-            <h3 className="font-semibold">Série de méditations</h3>
-          </div>
-          <div className="flex items-center">
-            <TrendingUp className="w-4 h-4 mr-1 text-green-500" />
-            <span className="text-2xl font-bold text-green-500">{meditationStreak}</span>
-            <span className="text-sm ml-1">jours</span>
-          </div>
-        </div>
-        <p className={`text-xs mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-          {meditationStreak > 0 
-            ? `Félicitations ! Vous avez médité ${meditationStreak} jour${meditationStreak > 1 ? 's' : ''} consécutif${meditationStreak > 1 ? 's' : ''}.`
-            : "Commencez votre série de méditations dès aujourd'hui !"
-          }
-        </p>
-      </div>
 
       {/* Insights personnalisés */}
       <div className={`p-4 rounded-lg border ${

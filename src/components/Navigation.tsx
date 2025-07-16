@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BookOpen, Mic, TrendingUp, Settings } from 'lucide-react';
+import { BookOpen, Mic, TrendingUp, Settings, Heart } from 'lucide-react';
 
 interface NavigationProps {
   activeTab: string;
@@ -11,6 +11,7 @@ interface NavigationProps {
 export const Navigation = ({ activeTab, setActiveTab, darkMode }: NavigationProps) => {
   const tabs = [
     { id: 'meditations', label: 'Méditations', icon: BookOpen },
+    { id: 'favorites', label: 'Favoris', icon: Heart },
     { id: 'sermons', label: 'Sermons', icon: Mic },
     { id: 'stats', label: 'Statistiques', icon: TrendingUp },
     { id: 'settings', label: 'Paramètres', icon: Settings }
