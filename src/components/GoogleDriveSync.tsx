@@ -13,6 +13,7 @@ export const GoogleDriveSync = ({ darkMode, meditations, sermons }: GoogleDriveS
   const [isConnected, setIsConnected] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<Date | null>(null);
+  const [email, setEmail] = useState('');
   const { toast } = useToast();
 
   const connectToGoogleDrive = async () => {
@@ -100,14 +101,30 @@ export const GoogleDriveSync = ({ darkMode, meditations, sermons }: GoogleDriveS
         </div>
 
         {!isConnected ? (
-          <Button 
-            onClick={connectToGoogleDrive}
-            disabled={isSyncing}
-            className="w-full"
-          >
-            <Cloud className="w-4 h-4 mr-2" />
-            {isSyncing ? 'Connexion...' : 'Se connecter à Google Drive'}
-          </Button>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Adresse email Google
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="votre.email@gmail.com"
+                className={`w-full px-3 py-2 rounded-lg border transition-colors duration-200 ${
+                  darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+              />
+            </div>
+            <Button 
+              onClick={connectToGoogleDrive}
+              disabled={isSyncing || !email}
+              className="w-full"
+            >
+              <Cloud className="w-4 h-4 mr-2" />
+              {isSyncing ? 'Connexion...' : 'Se connecter à Google Drive'}
+            </Button>
+          </div>
         ) : (
           <div className="space-y-3">
             <Button 
