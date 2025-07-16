@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Palette, Bell, Upload, Lock, Sun, Moon, Settings, Sparkles, Search, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GoogleDriveSync } from './GoogleDriveSync';
+import { LocalBackupManager } from './LocalBackupManager';
 import { DataExporter } from './DataExporter';
 import { DataImporter } from './DataImporter';
 import { PasswordManager } from './PasswordManager';
@@ -221,11 +222,19 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
             
             <div>
               <h3 className="text-lg font-semibold mb-4">Synchronisation Cloud</h3>
-              <GoogleDriveSync 
-                darkMode={darkMode}
-                meditations={meditations}
-                sermons={sermons}
-              />
+          <GoogleDriveSync 
+            darkMode={darkMode}
+            meditations={meditations}
+            sermons={sermons}
+          />
+          
+          <LocalBackupManager
+            darkMode={darkMode}
+            meditations={meditations}
+            sermons={sermons}
+            onImportMeditations={onImportMeditations}
+            onImportSermons={onImportSermons}
+          />
             </div>
           </div>
         )}
