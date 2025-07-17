@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { BookOpen, Mic, TrendingUp, Settings, Heart } from 'lucide-react';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface NavigationProps {
   activeTab: string;
@@ -9,12 +10,14 @@ interface NavigationProps {
 }
 
 export const Navigation = ({ activeTab, setActiveTab, darkMode }: NavigationProps) => {
+  const { t } = useLanguage();
+  
   const tabs = [
-    { id: 'meditations', label: 'Méditations', icon: BookOpen },
-    { id: 'favorites', label: 'Favoris', icon: Heart },
-    { id: 'sermons', label: 'Sermons', icon: Mic },
-    { id: 'stats', label: 'Statistiques', icon: TrendingUp },
-    { id: 'settings', label: 'Paramètres', icon: Settings }
+    { id: 'meditations', label: t('nav.meditations'), icon: BookOpen },
+    { id: 'favorites', label: t('nav.favorites'), icon: Heart },
+    { id: 'sermons', label: t('nav.sermons'), icon: Mic },
+    { id: 'stats', label: t('nav.stats'), icon: TrendingUp },
+    { id: 'settings', label: t('nav.settings'), icon: Settings }
   ];
 
   return (

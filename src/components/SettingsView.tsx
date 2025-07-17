@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { Palette, Bell, Upload, Lock, Sun, Moon, Settings, Sparkles, Search, Share2 } from 'lucide-react';
+import { Palette, Bell, Upload, Lock, Sun, Moon, Settings, Sparkles, Search, Share2, Globe } from 'lucide-react';
+import { useLanguage, Language } from '@/hooks/useLanguage';
 import { Button } from '@/components/ui/button';
 import { GoogleDriveSync } from './GoogleDriveSync';
 import { LocalBackupManager } from './LocalBackupManager';
@@ -25,6 +26,7 @@ interface SettingsViewProps {
 }
 
 export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons = [], onAddMeditation, onEditMeditation, onEditSermon, onImportMeditations, onImportSermons }: SettingsViewProps) => {
+  const { t, language, setLanguage } = useLanguage();
   const [showPasswordManager, setShowPasswordManager] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
 
@@ -36,17 +38,17 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold mb-4 animate-fade-in">Paramètres</h2>
+        <h2 className="text-xl font-semibold mb-4 animate-fade-in">{t('settings.title')}</h2>
         
         {/* Onglets */}
         <div className="flex space-x-1 mb-6 overflow-x-auto">
           {[
-            { id: 'general', label: 'Général', icon: Settings },
-            { id: 'appearance', label: 'Apparence', icon: Palette },
-            { id: 'notifications', label: 'Notifications', icon: Bell },
-            { id: 'backup', label: 'Sauvegarde', icon: Upload },
-            { id: 'search', label: 'Recherche', icon: Search },
-            { id: 'features', label: 'Fonctionnalités', icon: Sparkles }
+            { id: 'general', label: t('settings.general'), icon: Settings },
+            { id: 'appearance', label: t('settings.appearance'), icon: Palette },
+            { id: 'notifications', label: t('settings.notifications'), icon: Bell },
+            { id: 'backup', label: t('settings.backup'), icon: Upload },
+            { id: 'search', label: t('settings.search'), icon: Search },
+            { id: 'features', label: t('settings.features'), icon: Sparkles }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -71,11 +73,11 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
           }`}>
             <h3 className="font-medium mb-3 flex items-center">
               <Palette className="w-5 h-5 mr-2" />
-              Apparence
+              {t('appearance.title')}
             </h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span>Mode sombre</span>
+                <span>{t('appearance.darkMode')}</span>
                 <button
                   onClick={() => setDarkMode(!darkMode)}
                   className={`w-12 h-6 rounded-full transition-all duration-300 transform hover:scale-105 ${
@@ -91,14 +93,28 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-2">Taille de police</label>
+                <label className="block text-sm font-medium mb-2">{t('appearance.fontSize')}</label>
                 <select className={`w-full px-3 py-2 rounded-lg border transition-colors duration-200 ${
                   darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
                 }`}>
-                  <option>Petite</option>
-                  <option>Normale</option>
-                  <option>Grande</option>
-                  <option>Très grande</option>
+                  <option>{t('appearance.fontSize.small')}</option>
+                  <option>{t('appearance.fontSize.normal')}</option>
+                  <option>{t('appearance.fontSize.large')}</option>
+                  <option>{t('appearance.fontSize.xlarge')}</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-2">{t('settings.language')}</label>
+                <select 
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value as Language)}
+                  className={`w-full px-3 py-2 rounded-lg border transition-colors duration-200 ${
+                    darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
+                  }`}
+                >
+                  <option value="fr">{t('language.french')}</option>
+                  <option value="en">{t('language.english')}</option>
                 </select>
               </div>
             </div>
@@ -110,11 +126,11 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
           }`} style={{ animationDelay: '100ms' }}>
             <h3 className="font-medium mb-3 flex items-center">
               <Bell className="w-5 h-5 mr-2" />
-              Rappels
+              {t('notifications.title')}
             </h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span>Rappel matin</span>
+                <span>{t('notifications.morning')}</span>
                 <button className="w-12 h-6 rounded-full bg-blue-600 transition-all duration-200 hover:scale-105">
                   <div className="w-5 h-5 rounded-full bg-white translate-x-6 transition-transform duration-200" />
                 </button>
@@ -136,7 +152,7 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
           }`} style={{ animationDelay: '300ms' }}>
             <h3 className="font-medium mb-3 flex items-center">
               <Lock className="w-5 h-5 mr-2" />
-              Sécurité
+              {t('security.title')}
             </h3>
             <div className="space-y-3">
               {!showPasswordManager ? (
@@ -145,7 +161,7 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
                   onClick={() => setShowPasswordManager(true)}
                   className="w-full py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105"
                 >
-                  Changer le mot de passe
+                  {t('security.changePassword')}
                 </Button>
               ) : (
                 <div className="space-y-3">
@@ -158,12 +174,12 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
                     onClick={() => setShowPasswordManager(false)}
                     className="w-full"
                   >
-                    Annuler
+                    {t('security.cancel')}
                   </Button>
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <span>Verrouillage automatique</span>
+                <span>{t('security.autoLock')}</span>
                 <button className="w-12 h-6 rounded-full bg-blue-600 transition-all duration-200 hover:scale-105">
                   <div className="w-5 h-5 rounded-full bg-white translate-x-6 transition-transform duration-200" />
                 </button>
@@ -200,7 +216,7 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4">Exporter mes données</h3>
+                <h3 className="text-lg font-semibold mb-4">{t('backup.export')}</h3>
                 <DataExporter 
                   darkMode={darkMode}
                   meditations={meditations}
@@ -209,7 +225,7 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
               </div>
               
               <div>
-                <h3 className="text-lg font-semibold mb-4">Importer des données</h3>
+                <h3 className="text-lg font-semibold mb-4">{t('backup.import')}</h3>
                 {onImportMeditations && onImportSermons && (
                   <DataImporter 
                     darkMode={darkMode}
@@ -221,7 +237,7 @@ export const SettingsView = ({ darkMode, setDarkMode, meditations = [], sermons 
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold mb-4">Synchronisation Cloud</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('backup.cloud')}</h3>
           <GoogleDriveSync 
             darkMode={darkMode}
             meditations={meditations}

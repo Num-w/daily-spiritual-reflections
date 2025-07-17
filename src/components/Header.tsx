@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { BookOpen, Plus, Bell, Lock } from 'lucide-react';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface HeaderProps {
   onLock: () => void;
@@ -9,6 +10,8 @@ interface HeaderProps {
 }
 
 export const Header = ({ onLock, onNewMeditation, darkMode }: HeaderProps) => {
+  const { t } = useLanguage();
+  
   return (
     <div className={`sticky top-0 z-40 transition-colors duration-300 border-b ${
       darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
@@ -20,8 +23,8 @@ export const Header = ({ onLock, onNewMeditation, darkMode }: HeaderProps) => {
               <BookOpen className="w-8 h-8 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-xl font-bold">Daily Meditations</h1>
-              <p className="text-xs text-gray-500">Votre journal spirituel</p>
+              <h1 className="text-xl font-bold">{t('app.title')}</h1>
+              <p className="text-xs text-gray-500">{t('app.subtitle')}</p>
             </div>
           </div>
           
