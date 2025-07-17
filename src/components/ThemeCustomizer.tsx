@@ -111,9 +111,12 @@ export const ThemeCustomizer = ({ darkMode, setDarkMode }: ThemeCustomizerProps)
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
     
+    // Toujours appliquer le thème instantanément
+    applyTheme(newSettings);
+    
+    // Sauvegarder seulement si pas en mode aperçu
     if (!previewMode) {
       localStorage.setItem('themeSettings', JSON.stringify(newSettings));
-      applyTheme(newSettings);
     }
   };
 
