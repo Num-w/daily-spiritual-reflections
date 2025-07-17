@@ -97,20 +97,45 @@ export const SermonsView = ({ darkMode, sermons, meditations, onSaveSermon, onDe
     printWindow?.print();
   };
 
-  const handleShare = (sermon: any) => {
+  const handleShare = async (sermon: any) => {
     const shareText = `${sermon.title}\n\nThème: ${sermon.theme}\nDate: ${sermon.date}\n\nPlan:\n${sermon.outline}`;
     
     if (navigator.share) {
-      navigator.share({
-        title: sermon.title,
-        text: shareText,
-      });
+      try {
+        await navigator.share({
+          title: sermon.title,
+          text: shareText,
+        });
+      } catch (error) {
+        // Si le partage échoue, copier dans le presse-papier en fallback
+        try {
+          await navigator.clipboard.writeText(shareText);
+          toast({
+            title: "Copié !",
+            description: "Le contenu du sermon a été copié dans le presse-papier"
+          });
+        } catch (clipboardError) {
+          toast({
+            title: "Erreur",
+            description: "Impossible de partager ou copier le contenu",
+            variant: "destructive"
+          });
+        }
+      }
     } else {
-      navigator.clipboard.writeText(shareText);
-      toast({
-        title: "Copié !",
-        description: "Le contenu du sermon a été copié dans le presse-papier"
-      });
+      try {
+        await navigator.clipboard.writeText(shareText);
+        toast({
+          title: "Copié !",
+          description: "Le contenu du sermon a été copié dans le presse-papier"
+        });
+      } catch (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de copier le contenu dans le presse-papier",
+          variant: "destructive"
+        });
+      }
     }
   };
 
