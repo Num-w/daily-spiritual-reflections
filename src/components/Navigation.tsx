@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BookOpen, Mic, TrendingUp, Settings, Heart } from 'lucide-react';
+import { BookOpen, Mic, TrendingUp, Settings, Heart, Headphones } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface NavigationProps {
@@ -16,6 +16,7 @@ export const Navigation = ({ activeTab, setActiveTab, darkMode }: NavigationProp
     { id: 'meditations', label: t('nav.meditations'), icon: BookOpen },
     { id: 'favorites', label: t('nav.favorites'), icon: Heart },
     { id: 'sermons', label: t('nav.sermons'), icon: Mic },
+    { id: 'audio', label: 'Audio', icon: Headphones },
     { id: 'stats', label: t('nav.stats'), icon: TrendingUp },
     { id: 'settings', label: t('nav.settings'), icon: Settings }
   ];

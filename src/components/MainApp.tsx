@@ -9,6 +9,7 @@ import { SettingsView } from '@/components/SettingsView';
 import { MeditationEditor } from '@/components/MeditationEditor';
 import { SermonEditor } from '@/components/SermonEditor';
 import { FavoritesManager } from '@/components/FavoritesManager';
+import { AudioRecorder } from '@/components/AudioRecorder';
 import { Plus } from 'lucide-react';
 
 interface MainAppProps {
@@ -201,6 +202,8 @@ export const MainApp = ({ onLock, darkMode, setDarkMode }: MainAppProps) => {
             onDeleteSermon={handleDeleteSermon}
           />
         );
+      case 'audio':
+        return <AudioRecorder darkMode={darkMode} />;
       case 'stats':
         return <StatsView darkMode={darkMode} meditations={meditations} sermons={sermons} />;
       case 'settings':
