@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Palette, Sun, Moon, Monitor, Eye, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ interface ThemeSettings {
   borderRadius: number;
   animations: boolean;
   coloredCards: boolean;
+  contrast: number;
 }
 
 export const ThemeCustomizer = ({ darkMode, setDarkMode }: ThemeCustomizerProps) => {
@@ -30,18 +32,19 @@ export const ThemeCustomizer = ({ darkMode, setDarkMode }: ThemeCustomizerProps)
     lineHeight: 1.5,
     borderRadius: 8,
     animations: true,
-    coloredCards: true
+    coloredCards: true,
+    contrast: 0
   });
   const [previewMode, setPreviewMode] = useState(false);
   const { toast } = useToast();
 
   const accentColors = [
-    { name: 'Bleu', value: 'blue', color: '#3b82f6' },
-    { name: 'Vert', value: 'green', color: '#10b981' },
-    { name: 'Violet', value: 'purple', color: '#8b5cf6' },
-    { name: 'Orange', value: 'orange', color: '#f59e0b' },
-    { name: 'Rose', value: 'pink', color: '#ec4899' },
-    { name: 'Indigo', value: 'indigo', color: '#6366f1' }
+    { name: 'Bleu', value: 'blue', hsl: '220 100% 50%', secondary: '220 100% 95%', dark: '220 100% 35%' },
+    { name: 'Vert', value: 'green', hsl: '142 76% 36%', secondary: '142 76% 95%', dark: '142 76% 25%' },
+    { name: 'Violet', value: 'purple', hsl: '262 83% 58%', secondary: '262 83% 95%', dark: '262 83% 40%' },
+    { name: 'Orange', value: 'orange', hsl: '38 92% 50%', secondary: '38 92% 95%', dark: '38 92% 35%' },
+    { name: 'Rose', value: 'pink', hsl: '322 65% 54%', secondary: '322 65% 95%', dark: '322 65% 40%' },
+    { name: 'Indigo', value: 'indigo', hsl: '239 84% 67%', secondary: '239 84% 95%', dark: '239 84% 50%' }
   ];
 
   useEffect(() => {
@@ -62,24 +65,37 @@ export const ThemeCustomizer = ({ darkMode, setDarkMode }: ThemeCustomizerProps)
     const root = document.documentElement;
     
     // Apply accent color
-    const colorMap = {
-      blue: { primary: '220 100% 50%', secondary: '220 100% 95%' },
-      green: { primary: '142 76% 36%', secondary: '142 76% 95%' },
-      purple: { primary: '262 83% 58%', secondary: '262 83% 95%' },
-      orange: { primary: '38 92% 50%', secondary: '38 92% 95%' },
-      pink: { primary: '322 65% 54%', secondary: '322 65% 95%' },
-      indigo: { primary: '239 84% 67%', secondary: '239 84% 95%' }
-    };
-    
-    const colors = colorMap[themeSettings.accentColor as keyof typeof colorMap];
-    if (colors) {
-      root.style.setProperty('--primary', colors.primary);
-      root.style.setProperty('--secondary', colors.secondary);
+    const selectedColor = accentColors.find(c => c.value === themeSettings.accentColor);
+    if (selectedColor) {
+      root.style.setProperty('--primary', selectedColor.hsl);
+      root.style.setProperty('--secondary', selectedColor.secondary);
+      
+      // Apply to various UI elements
+      root.style.setProperty('--accent', selectedColor.hsl);
+      root.style.setProperty('--ring', selectedColor.hsl);
+      
+      // Dark mode variations
+      if (darkMode) {
+        root.style.setProperty('--primary', selectedColor.dark);
+        root.style.setProperty('--accent', selectedColor.dark);
+      }
+      
+      // Update button colors
+      const buttons = document.querySelectorAll('.btn-primary, .bg-blue-600, .bg-blue-500');
+      buttons.forEach(button => {
+        if (button instanceof HTMLElement) {
+          button.style.backgroundColor = `hsl(${selectedColor.hsl})`;
+        }
+      });
     }
 
     // Apply typography
     root.style.setProperty('--font-size-base', `${themeSettings.fontSize}px`);
     root.style.setProperty('--line-height-base', themeSettings.lineHeight.toString());
+    
+    // Apply to body
+    document.body.style.fontSize = `${themeSettings.fontSize}px`;
+    document.body.style.lineHeight = themeSettings.lineHeight.toString();
 
     // Apply border radius
     root.style.setProperty('--radius', `${themeSettings.borderRadius}px`);
@@ -87,8 +103,49 @@ export const ThemeCustomizer = ({ darkMode, setDarkMode }: ThemeCustomizerProps)
     // Apply animations
     if (!themeSettings.animations) {
       root.style.setProperty('--animation-duration', '0s');
+      document.body.style.setProperty('transition', 'none');
     } else {
       root.style.setProperty('--animation-duration', '0.3s');
+      document.body.style.removeProperty('transition');
+    }
+
+    // Apply contrast with orange saturation
+    if (themeSettings.contrast > 0) {
+      const orangeOpacity = themeSettings.contrast / 100;
+      const orangeOverlay = `linear-gradient(rgba(255, 165, 0, ${orangeOpacity * 0.1}), rgba(255, 140, 0, ${orangeOpacity * 0.05}))`;
+      
+      if (darkMode) {
+        document.body.style.background = `${orangeOverlay}, hsl(222.2 84% 4.9%)`;
+      } else {
+        document.body.style.background = `${orangeOverlay}, hsl(0 0% 98%)`;
+      }
+      
+      // Adjust text contrast
+      root.style.setProperty('--foreground-contrast', `hsl(${darkMode ? '210 40% ' + (98 - orangeOpacity * 10) + '%' : '222.2 84% ' + (4.9 + orangeOpacity * 10) + '%'})`);
+    } else {
+      // Reset background
+      if (darkMode) {
+        document.body.style.background = 'hsl(222.2 84% 4.9%)';
+      } else {
+        document.body.style.background = 'hsl(0 0% 98%)';
+      }
+      root.style.removeProperty('--foreground-contrast');
+    }
+
+    // Handle colored cards
+    if (themeSettings.coloredCards && selectedColor) {
+      const cards = document.querySelectorAll('[class*="bg-white"], [class*="bg-gray-800"]');
+      cards.forEach(card => {
+        if (card instanceof HTMLElement) {
+          if (darkMode) {
+            card.style.backgroundColor = `hsl(${selectedColor.hsl.split(' ')[0]} 20% 15%)`;
+            card.style.borderColor = `hsl(${selectedColor.hsl})`;
+          } else {
+            card.style.backgroundColor = `hsl(${selectedColor.hsl.split(' ')[0]} 30% 98%)`;
+            card.style.borderColor = `hsl(${selectedColor.secondary})`;
+          }
+        }
+      });
     }
 
     // Handle auto mode
@@ -138,7 +195,8 @@ export const ThemeCustomizer = ({ darkMode, setDarkMode }: ThemeCustomizerProps)
       lineHeight: 1.5,
       borderRadius: 8,
       animations: true,
-      coloredCards: true
+      coloredCards: true,
+      contrast: 0
     };
     
     setSettings(defaultSettings);
@@ -217,10 +275,14 @@ export const ThemeCustomizer = ({ darkMode, setDarkMode }: ThemeCustomizerProps)
                 size="sm"
                 onClick={() => updateSettings('accentColor', color.value)}
                 className="flex items-center space-x-2"
+                style={{
+                  backgroundColor: settings.accentColor === color.value ? `hsl(${color.hsl})` : undefined,
+                  borderColor: `hsl(${color.hsl})`
+                }}
               >
                 <div 
                   className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: color.color }}
+                  style={{ backgroundColor: `hsl(${color.hsl})` }}
                 />
                 <span>{color.name}</span>
               </Button>
@@ -271,6 +333,24 @@ export const ThemeCustomizer = ({ darkMode, setDarkMode }: ThemeCustomizerProps)
             step={1}
             className="w-full"
           />
+        </div>
+
+        {/* Contraste avec saturation orange */}
+        <div className="space-y-3">
+          <label className="block text-sm font-medium">
+            Contraste (saturation orange): {settings.contrast}%
+          </label>
+          <Slider
+            value={[settings.contrast]}
+            onValueChange={([value]) => updateSettings('contrast', value)}
+            min={0}
+            max={100}
+            step={5}
+            className="w-full"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Ajoute une teinte orange subtile à l'arrière-plan pour améliorer le contraste
+          </p>
         </div>
 
         {/* Options supplémentaires */}
