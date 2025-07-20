@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { RichTextEditor } from './RichTextEditor';
 
 interface MeditationEditorProps {
   onClose: () => void;
@@ -123,40 +124,34 @@ export const MeditationEditor = ({ onClose, darkMode, meditation, onSave }: Medi
 
           <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
             <label className="block text-sm font-medium mb-2">Texte biblique</label>
-            <textarea
+            <RichTextEditor
               value={formData.content}
-              onChange={(e) => setFormData({...formData, content: e.target.value})}
-              rows={3}
-              className={`w-full px-3 py-2 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
-                darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'
-              }`}
+              onChange={(content) => setFormData({...formData, content})}
               placeholder="Copiez le verset ici"
+              rows={3}
+              darkMode={darkMode}
             />
           </div>
 
           <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
             <label className="block text-sm font-medium mb-2">Résumé de méditation *</label>
-            <textarea
+            <RichTextEditor
               value={formData.summary}
-              onChange={(e) => setFormData({...formData, summary: e.target.value})}
-              rows={4}
-              className={`w-full px-3 py-2 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
-                darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'
-              }`}
+              onChange={(summary) => setFormData({...formData, summary})}
               placeholder="Votre réflexion personnelle..."
+              rows={4}
+              darkMode={darkMode}
             />
           </div>
 
           <div className="animate-fade-in" style={{ animationDelay: '400ms' }}>
             <label className="block text-sm font-medium mb-2">Commentaires</label>
-            <textarea
+            <RichTextEditor
               value={formData.comments}
-              onChange={(e) => setFormData({...formData, comments: e.target.value})}
-              rows={3}
-              className={`w-full px-3 py-2 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
-                darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'
-              }`}
+              onChange={(comments) => setFormData({...formData, comments})}
               placeholder="Notes additionnelles..."
+              rows={3}
+              darkMode={darkMode}
             />
           </div>
 

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { RichTextEditor } from './RichTextEditor';
 
 interface SermonEditorProps {
   sermon?: any;
@@ -240,13 +241,12 @@ export const SermonEditor = ({ sermon, meditations, onSave, onClose, darkMode }:
             <CardTitle>Plan</CardTitle>
           </CardHeader>
           <CardContent>
-            <textarea
+            <RichTextEditor
               value={outline}
-              onChange={(e) => setOutline(e.target.value)}
-              className={`w-full px-3 py-2 rounded-lg border h-48 resize-none ${
-                darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
-              }`}
+              onChange={setOutline}
               placeholder="Plan détaillé du sermon..."
+              rows={8}
+              darkMode={darkMode}
             />
           </CardContent>
         </Card>
@@ -259,13 +259,12 @@ export const SermonEditor = ({ sermon, meditations, onSave, onClose, darkMode }:
             <CardTitle>Introduction</CardTitle>
           </CardHeader>
           <CardContent>
-            <textarea
+            <RichTextEditor
               value={introduction}
-              onChange={(e) => setIntroduction(e.target.value)}
-              className={`w-full px-3 py-2 rounded-lg border h-32 resize-none ${
-                darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
-              }`}
+              onChange={setIntroduction}
               placeholder="Introduction du sermon..."
+              rows={5}
+              darkMode={darkMode}
             />
           </CardContent>
         </Card>
@@ -275,13 +274,12 @@ export const SermonEditor = ({ sermon, meditations, onSave, onClose, darkMode }:
             <CardTitle>Conclusion</CardTitle>
           </CardHeader>
           <CardContent>
-            <textarea
+            <RichTextEditor
               value={conclusion}
-              onChange={(e) => setConclusion(e.target.value)}
-              className={`w-full px-3 py-2 rounded-lg border h-32 resize-none ${
-                darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
-              }`}
+              onChange={setConclusion}
               placeholder="Conclusion du sermon..."
+              rows={5}
+              darkMode={darkMode}
             />
           </CardContent>
         </Card>
@@ -302,13 +300,13 @@ export const SermonEditor = ({ sermon, meditations, onSave, onClose, darkMode }:
           {mainPoints.map((point, index) => (
             <div key={index} className="flex items-start space-x-3">
               <span className="text-sm font-medium mt-2">{index + 1}.</span>
-              <textarea
+              <RichTextEditor
                 value={point}
-                onChange={(e) => updateMainPoint(index, e.target.value)}
-                className={`flex-1 px-3 py-2 rounded-lg border h-20 resize-none ${
-                  darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
-                }`}
+                onChange={(value) => updateMainPoint(index, value)}
                 placeholder={`Point principal ${index + 1}...`}
+                rows={3}
+                darkMode={darkMode}
+                className="flex-1"
               />
               <Button
                 variant="ghost"
@@ -328,16 +326,15 @@ export const SermonEditor = ({ sermon, meditations, onSave, onClose, darkMode }:
         <CardHeader>
           <CardTitle>Notes personnelles</CardTitle>
         </CardHeader>
-        <CardContent>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className={`w-full px-3 py-2 rounded-lg border h-24 resize-none ${
-              darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
-            }`}
-            placeholder="Notes et rappels personnels..."
-          />
-        </CardContent>
+          <CardContent>
+            <RichTextEditor
+              value={notes}
+              onChange={setNotes}
+              placeholder="Notes et rappels personnels..."
+              rows={4}
+              darkMode={darkMode}
+            />
+          </CardContent>
       </Card>
 
       {/* Actions */}
