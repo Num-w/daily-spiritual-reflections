@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Palette, Sun, Moon, Monitor, Eye, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { BrightnessControl } from './BrightnessControl';
 
 interface ThemeCustomizerProps {
   darkMode: boolean;
@@ -220,177 +220,182 @@ export const ThemeCustomizer = ({ darkMode, setDarkMode }: ThemeCustomizerProps)
   };
 
   return (
-    <Card className={darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}>
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Palette className="w-5 h-5" />
-          <span>Personnalisation du thème</span>
-        </CardTitle>
-        {previewMode && (
-          <div className="flex items-center space-x-2 text-sm text-orange-600 dark:text-orange-400">
-            <Eye className="w-4 h-4" />
-            <span>Mode aperçu - Cliquez sur "Sauvegarder" pour appliquer</span>
-          </div>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Mode sombre/clair */}
-        <div className="space-y-3">
-          <label className="block text-sm font-medium">Mode d'affichage</label>
-          <Select value={settings.mode} onValueChange={(value) => updateSettings('mode', value)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="light">
-                <div className="flex items-center space-x-2">
-                  <Sun className="w-4 h-4" />
-                  <span>Clair</span>
-                </div>
-              </SelectItem>
-              <SelectItem value="dark">
-                <div className="flex items-center space-x-2">
-                  <Moon className="w-4 h-4" />
-                  <span>Sombre</span>
-                </div>
-              </SelectItem>
-              <SelectItem value="auto">
-                <div className="flex items-center space-x-2">
-                  <Monitor className="w-4 h-4" />
-                  <span>Automatique</span>
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Couleur d'accent */}
-        <div className="space-y-3">
-          <label className="block text-sm font-medium">Couleur d'accent</label>
-          <div className="grid grid-cols-3 gap-2">
-            {accentColors.map((color) => (
-              <Button
-                key={color.value}
-                variant={settings.accentColor === color.value ? "default" : "outline"}
-                size="sm"
-                onClick={() => updateSettings('accentColor', color.value)}
-                className="flex items-center space-x-2"
-                style={{
-                  backgroundColor: settings.accentColor === color.value ? `hsl(${color.hsl})` : undefined,
-                  borderColor: `hsl(${color.hsl})`
-                }}
-              >
-                <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: `hsl(${color.hsl})` }}
-                />
-                <span>{color.name}</span>
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Taille de police */}
-        <div className="space-y-3">
-          <label className="block text-sm font-medium">
-            Taille de police: {settings.fontSize}px
-          </label>
-          <Slider
-            value={[settings.fontSize]}
-            onValueChange={([value]) => updateSettings('fontSize', value)}
-            min={12}
-            max={20}
-            step={1}
-            className="w-full"
-          />
-        </div>
-
-        {/* Hauteur de ligne */}
-        <div className="space-y-3">
-          <label className="block text-sm font-medium">
-            Hauteur de ligne: {settings.lineHeight}
-          </label>
-          <Slider
-            value={[settings.lineHeight]}
-            onValueChange={([value]) => updateSettings('lineHeight', value)}
-            min={1.2}
-            max={2.0}
-            step={0.1}
-            className="w-full"
-          />
-        </div>
-
-        {/* Rayon des bordures */}
-        <div className="space-y-3">
-          <label className="block text-sm font-medium">
-            Arrondi des bordures: {settings.borderRadius}px
-          </label>
-          <Slider
-            value={[settings.borderRadius]}
-            onValueChange={([value]) => updateSettings('borderRadius', value)}
-            min={0}
-            max={16}
-            step={1}
-            className="w-full"
-          />
-        </div>
-
-        {/* Contraste avec saturation orange */}
-        <div className="space-y-3">
-          <label className="block text-sm font-medium">
-            Contraste (saturation orange): {settings.contrast}%
-          </label>
-          <Slider
-            value={[settings.contrast]}
-            onValueChange={([value]) => updateSettings('contrast', value)}
-            min={0}
-            max={100}
-            step={5}
-            className="w-full"
-          />
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            Ajoute une teinte orange subtile à l'arrière-plan pour améliorer le contraste
-          </p>
-        </div>
-
-        {/* Options supplémentaires */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-medium">Animations</label>
-            <Switch
-              checked={settings.animations}
-              onCheckedChange={(checked) => updateSettings('animations', checked)}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-medium">Cartes colorées</label>
-            <Switch
-              checked={settings.coloredCards}
-              onCheckedChange={(checked) => updateSettings('coloredCards', checked)}
-            />
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex space-x-2 pt-4">
-          {!previewMode ? (
-            <Button onClick={enablePreview} variant="outline" className="flex-1">
-              <Eye className="w-4 h-4 mr-2" />
-              Aperçu
-            </Button>
-          ) : (
-            <Button onClick={saveTheme} className="flex-1">
-              Sauvegarder
-            </Button>
+    <div className="space-y-6">
+      <Card className={darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Palette className="w-5 h-5" />
+            <span>Personnalisation du thème</span>
+          </CardTitle>
+          {previewMode && (
+            <div className="flex items-center space-x-2 text-sm text-orange-600 dark:text-orange-400">
+              <Eye className="w-4 h-4" />
+              <span>Mode aperçu - Cliquez sur "Sauvegarder" pour appliquer</span>
+            </div>
           )}
-          
-          <Button onClick={resetTheme} variant="outline">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Réinitialiser
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Mode sombre/clair */}
+          <div className="space-y-3">
+            <label className="block text-sm font-medium">Mode d'affichage</label>
+            <Select value={settings.mode} onValueChange={(value) => updateSettings('mode', value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="light">
+                  <div className="flex items-center space-x-2">
+                    <Sun className="w-4 h-4" />
+                    <span>Clair</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="dark">
+                  <div className="flex items-center space-x-2">
+                    <Moon className="w-4 h-4" />
+                    <span>Sombre</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="auto">
+                  <div className="flex items-center space-x-2">
+                    <Monitor className="w-4 h-4" />
+                    <span>Automatique</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Couleur d'accent */}
+          <div className="space-y-3">
+            <label className="block text-sm font-medium">Couleur d'accent</label>
+            <div className="grid grid-cols-3 gap-2">
+              {accentColors.map((color) => (
+                <Button
+                  key={color.value}
+                  variant={settings.accentColor === color.value ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => updateSettings('accentColor', color.value)}
+                  className="flex items-center space-x-2"
+                  style={{
+                    backgroundColor: settings.accentColor === color.value ? `hsl(${color.hsl})` : undefined,
+                    borderColor: `hsl(${color.hsl})`
+                  }}
+                >
+                  <div 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: `hsl(${color.hsl})` }}
+                  />
+                  <span>{color.name}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Taille de police */}
+          <div className="space-y-3">
+            <label className="block text-sm font-medium">
+              Taille de police: {settings.fontSize}px
+            </label>
+            <Slider
+              value={[settings.fontSize]}
+              onValueChange={([value]) => updateSettings('fontSize', value)}
+              min={12}
+              max={20}
+              step={1}
+              className="w-full"
+            />
+          </div>
+
+          {/* Hauteur de ligne */}
+          <div className="space-y-3">
+            <label className="block text-sm font-medium">
+              Hauteur de ligne: {settings.lineHeight}
+            </label>
+            <Slider
+              value={[settings.lineHeight]}
+              onValueChange={([value]) => updateSettings('lineHeight', value)}
+              min={1.2}
+              max={2.0}
+              step={0.1}
+              className="w-full"
+            />
+          </div>
+
+          {/* Rayon des bordures */}
+          <div className="space-y-3">
+            <label className="block text-sm font-medium">
+              Arrondi des bordures: {settings.borderRadius}px
+            </label>
+            <Slider
+              value={[settings.borderRadius]}
+              onValueChange={([value]) => updateSettings('borderRadius', value)}
+              min={0}
+              max={16}
+              step={1}
+              className="w-full"
+            />
+          </div>
+
+          {/* Contraste avec saturation orange */}
+          <div className="space-y-3">
+            <label className="block text-sm font-medium">
+              Contraste (saturation orange): {settings.contrast}%
+            </label>
+            <Slider
+              value={[settings.contrast]}
+              onValueChange={([value]) => updateSettings('contrast', value)}
+              min={0}
+              max={100}
+              step={5}
+              className="w-full"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Ajoute une teinte orange subtile à l'arrière-plan pour améliorer le contraste
+            </p>
+          </div>
+
+          {/* Options supplémentaires */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">Animations</label>
+              <Switch
+                checked={settings.animations}
+                onCheckedChange={(checked) => updateSettings('animations', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">Cartes colorées</label>
+              <Switch
+                checked={settings.coloredCards}
+                onCheckedChange={(checked) => updateSettings('coloredCards', checked)}
+              />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex space-x-2 pt-4">
+            {!previewMode ? (
+              <Button onClick={enablePreview} variant="outline" className="flex-1">
+                <Eye className="w-4 h-4 mr-2" />
+                Aperçu
+              </Button>
+            ) : (
+              <Button onClick={saveTheme} className="flex-1">
+                Sauvegarder
+              </Button>
+            )}
+            
+            <Button onClick={resetTheme} variant="outline">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Réinitialiser
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Nouveau contrôle de luminosité */}
+      <BrightnessControl darkMode={darkMode} />
+    </div>
   );
 };
